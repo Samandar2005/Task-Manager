@@ -1,3 +1,4 @@
+# app.py
 from flask import Flask, request, redirect, url_for, render_template
 from models import db, Task
 from config import Config
@@ -37,6 +38,14 @@ def update_task(task_id):
     if task:
         task.status = 'completed' if task.status == 'pending' else 'pending'
         db.session.commit()
+    return redirect(url_for('index'))
+
+@app.route('/archive')
+def archive_tasks():
+    completed_tasks = Task.query.filter_by(status='completed').all()
+    for task in completed_tasks:
+        db.session.delete(task)
+    db.session.commit()
     return redirect(url_for('index'))
 
 if __name__ == '__main__':

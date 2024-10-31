@@ -3,46 +3,23 @@ body {
     margin: 0;
     padding: 0;
 }
-.container{
-    width: 45%;
+.container {
+    width: 60%;
 }
-
 h1 {
     color: #007bff;
     font-size: 2rem;
     margin-bottom: 1rem;
 }
-
 .card {
-    margin: 0;
-    padding: 0;
     border: none;
     box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
 }
-
 .list-group-item {
     border: none;
-    padding: 15px 20px;
-    margin-bottom: 8px;
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.05);
     transition: 0.2s ease-in-out;
 }
-
 .list-group-item:hover {
     transform: translateY(-2px);
-}
-
-.buttons {
-    display: flex;
-    align-items: center;
-}
-
-.buttons button {
-    margin-left: 5px;
-    font-size: 0.9rem;
-    padding: 5px 10px;
-}
-
-.buttons form {
-    display: inline;
 }
