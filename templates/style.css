@@ -1,0 +1,32 @@
+body {
+    background-color: #f8f9fa;
+}
+
+h1 {
+    color: #007bff;
+}
+
+.card {
+    border: none;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.list-group-item {
+    border: none;
+    padding: 20px;
+    margin-bottom: 10px;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.05);
+    transition: 0.2s ease-in-out;
+}
+
+.list-group-item:hover {
+    transform: translateY(-2px);
+}
+
+.buttons button {
+    margin-left: 5px;
+}
+
+.buttons form {
+    display: inline;
+}
