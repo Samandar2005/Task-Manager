@@ -12,7 +12,6 @@ app.config.from_object(Config)
 db.init_app(app)
 
 
-# Initialize Flask-Login
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
@@ -48,7 +47,6 @@ def signup():
     return render_template('signup.html')
 
 
-# Login route
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -77,7 +75,7 @@ def logout():
 @app.route('/')
 @login_required
 def index():
-    tasks = Task.query.all()
+    tasks = Task.query.filter_by(user_id=current_user.id).all()
     return render_template('index.html', tasks=tasks)
 
 
@@ -86,27 +84,27 @@ def index():
 def add_task():
     title = request.form.get('title')
     description = request.form.get('description')
-    new_task = Task(title=title, description=description)
+    new_task = Task(title=title, description=description, user_id=current_user.id)  # Set user_id to current user
     db.session.add(new_task)
     db.session.commit()
     return redirect(url_for('index'))
+
 
 
 @app.route('/delete/<int:task_id>')
 @login_required
 def delete_task(task_id):
     task = Task.query.get(task_id)
-    if task:
+    if task and task.user_id == current_user.id:  # Only delete if task belongs to the current user
         db.session.delete(task)
         db.session.commit()
     return redirect(url_for('index'))
-
 
 @app.route('/update/<int:task_id>', methods=['POST'])
 @login_required
 def update_task(task_id):
     task = Task.query.get(task_id)
-    if task:
+    if task and task.user_id == current_user.id:  # Only update if task belongs to the current user
         task.status = 'completed' if task.status == 'pending' else 'pending'
         db.session.commit()
     return redirect(url_for('index'))
