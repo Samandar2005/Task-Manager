@@ -1,22 +1,88 @@
-from flask import Flask, request, redirect, url_for, render_template
-from models import db, Task
+from flask import Flask, request, redirect, url_for, render_template, flash
+from models import db, Task, User
 from config import Config
+from flask_login import LoginManager, login_user, login_required, logout_user, current_user
+import secrets
+
+secret_key = secrets.token_hex(32)
 
 app = Flask(__name__)
+app.secret_key = secret_key
 app.config.from_object(Config)
 db.init_app(app)
+
+
+# Initialize Flask-Login
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login'
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
+
 
 with app.app_context():
     db.create_all()
 
 
+# Signup route
+@app.route('/signup', methods=['GET', 'POST'])
+def signup():
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+
+        if User.query.filter_by(username=username).first():
+            flash('Username already exists!')
+            return redirect(url_for('signup'))
+
+        new_user = User(username=username)
+        new_user.set_password(password)
+        db.session.add(new_user)
+        db.session.commit()
+        flash('Account created successfully! You can now log in.')
+        return redirect(url_for('login'))
+
+    return render_template('signup.html')
+
+
+# Login route
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+        user = User.query.filter_by(username=username).first()
+
+        if user and user.check_password(password):
+            login_user(user)
+            return redirect(url_for('index'))
+
+        flash('Invalid username or password!')
+
+    return render_template('login.html')
+
+
+# Logout route
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    flash('You have been logged out.')
+    return redirect(url_for('login'))
+
+
 @app.route('/')
+@login_required
 def index():
     tasks = Task.query.all()
     return render_template('index.html', tasks=tasks)
 
 
 @app.route('/add', methods=['POST'])
+@login_required
 def add_task():
     title = request.form.get('title')
     description = request.form.get('description')
@@ -27,6 +93,7 @@ def add_task():
 
 
 @app.route('/delete/<int:task_id>')
+@login_required
 def delete_task(task_id):
     task = Task.query.get(task_id)
     if task:
@@ -36,6 +103,7 @@ def delete_task(task_id):
 
 
 @app.route('/update/<int:task_id>', methods=['POST'])
+@login_required
 def update_task(task_id):
     task = Task.query.get(task_id)
     if task:
@@ -45,6 +113,7 @@ def update_task(task_id):
 
 
 @app.route('/archive')
+@login_required
 def archive_tasks():
     completed_tasks = Task.query.filter_by(status='completed').all()
     for task in completed_tasks:

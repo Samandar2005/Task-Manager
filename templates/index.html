@@ -11,9 +11,28 @@
 <body>
     <div class="container my-4">
         <h1 class="text-center">Task Manager</h1>
+
+        <!-- Authentication Links -->
+        {% if not current_user.is_authenticated %}
+            <div class="text-center my-3">
+                <a href="{{ url_for('login') }}" class="btn btn-primary">Login</a>
+                <a href="{{ url_for('signup') }}" class="btn btn-secondary">Sign Up</a>
+            </div>
+        {% else %}
+            <div class="text-center my-3">
+                <p>Welcome, {{ current_user.username }}!</p>
+                <a href="{{ url_for('logout') }}" class="btn btn-danger">Logout</a>
+            </div>
+        {% endif %}
+
+        {% if current_user.is_authenticated %}
+
+        <!-- Progress Bar -->
         <div class="progress my-4">
             <div class="progress-bar" role="progressbar" id="taskProgressBar" style="width: 0%">0%</div>
         </div>
+
+        <!-- Search and Filter Buttons -->
         <div class="d-flex justify-content-between my-1">
             <input type="text" class="form-control" id="searchInput" placeholder="Search tasks..." onkeyup="searchTasks()">
             <button class="btn btn-secondary ml-2" onclick="filterTasks('all')">All</button>
@@ -21,6 +40,8 @@
             <button class="btn btn-primary ml-2" onclick="filterTasks('completed')">Completed</button>
             <button class="btn btn-danger ml-2" onclick="location.href='/archive'">Archive Completed</button>
         </div>
+
+        <!-- Add Task Form -->
         <div class="card mt-4">
             <div class="card-body">
                 <form action="/add" method="POST" id="taskForm">
@@ -34,11 +55,11 @@
                 </form>
             </div>
         </div>
+
+        <!-- Task List -->
         <ul class="list-group mt-4">
             {% for task in tasks %}
-            <li class="list-group-item d-flex justify-content-between align-items-center"
-                data-status="{{ task.status }}" id="task-{{ task.id }}" draggable="true"
-                ondragstart="dragStart(event)" ondragover="allowDrop(event)" ondrop="drop(event)">
+            <li class="list-group-item d-flex justify-content-between align-items-center" data-status="{{ task.status }}" draggable="true" ondragstart="dragStart(event)" ondragover="allowDrop(event)" ondrop="drop(event)">
                 <div>
                     <h5>{{ task.title }}</h5>
                     <small class="text-muted">{{ task.description }}</small>
@@ -58,10 +79,19 @@
             </li>
             {% endfor %}
         </ul>
+
+        <!-- Alert Message -->
         <div id="alertContainer" class="alert alert-success" role="alert" style="display: none;">
             Action completed successfully!
         </div>
+
+        {% else %}
+            <div class="alert alert-warning text-center mt-4">
+                Please <a href="{{ url_for('login') }}">login</a> to access your tasks.
+            </div>
+        {% endif %}
     </div>
+
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
     <script src="{{ url_for('static', filename='script.js') }}"></script>
